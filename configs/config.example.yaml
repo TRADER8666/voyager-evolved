@@ -255,3 +255,243 @@ debug:
   log_observations: true
   log_goal_evolution: true
   enable_profiling: false
+
+
+
+# ============================================
+# Phase 1B: Multi-Model Ensemble Configuration
+# ============================================
+model_ensemble:
+  enabled: true
+  
+  # Model Router
+  router:
+    enable_performance_tracking: true
+    enable_fallback: true
+    cache_responses: true
+    cache_size: 100
+    persist_performance: true
+    
+  # Model Selection by Task Type
+  models:
+    reasoning:
+      primary: "llama2"
+      fallback: "mistral"
+      temperature: 0.3
+    
+    code_generation:
+      primary: "codellama"
+      fallback: "llama2"
+      temperature: 0.1
+    
+    conversation:
+      primary: "neural-chat"
+      fallback: "llama2"
+      temperature: 0.7
+    
+    fast_decisions:
+      primary: "tinyllama"
+      fallback: "llama2"
+      temperature: 0.2
+    
+    analysis:
+      primary: "mistral"
+      fallback: "llama2"
+      temperature: 0.2
+  
+  # Parallel Inference
+  parallel:
+    enabled: true
+    max_parallel_models: 3
+    strategy: "first"  # first, best, consensus
+    timeout_seconds: 60
+
+# ============================================
+# Phase 1B: Working Memory Configuration
+# ============================================
+working_memory:
+  enabled: true
+  
+  # Capacity (Miller's Law: 7±2)
+  capacity: 7  # 5-9 items
+  
+  # Decay and Rehearsal
+  decay_rate: 0.05  # Per maintenance cycle
+  rehearsal_interval: 5.0  # Seconds between rehearsals
+  
+  # Long-term Memory Transfer
+  ltm_transfer_threshold: 0.7  # Importance threshold
+  auto_transfer: true
+  
+  # Context Window Management
+  max_context_tokens: 4000
+  prioritize_goals: true
+  
+  # Buffer Allocation (Baddeley model)
+  phonological_ratio: 0.5  # Verbal/text items
+  visuospatial_ratio: 0.3  # Spatial/visual items
+  episodic_ratio: 0.2      # Episodes/events
+
+# ============================================
+# Phase 1B: Enhanced Episodic Memory
+# ============================================
+episodic_memory:
+  enabled: true
+  
+  # Capacity
+  max_episodes: 5000
+  
+  # Autobiographical Memory
+  enable_autobiography: true
+  max_self_defining_memories: 100
+  
+  # Temporal Features
+  enable_temporal_tagging: true
+  enable_episode_chains: true
+  max_chain_length: 50
+  
+  # Emotional Salience
+  enable_emotional_weighting: true
+  emotional_boost: 1.5  # Multiplier for emotional memories
+  
+  # Decay
+  vividness_decay_rate: 0.01
+  min_vividness: 0.1
+  
+  # Episode Types to Track
+  track_achievements: true
+  track_failures: true
+  track_discoveries: true
+  track_social_interactions: true
+  track_dangers: true
+  track_first_experiences: true
+  
+  # Reconstruction
+  enable_reconstruction: true
+  reconstruction_threshold: 0.3
+
+# ============================================
+# Phase 1B: Enhanced Semantic Memory
+# ============================================
+semantic_memory:
+  enabled: true
+  
+  # Capacity
+  max_concepts: 10000
+  max_relations: 50000
+  
+  # Ontology
+  enable_concept_hierarchy: true
+  enable_property_inheritance: true
+  auto_initialize_minecraft_ontology: true
+  
+  # Relations
+  enable_multiple_relation_types: true
+  min_relation_strength: 0.3
+  relation_decay_rate: 0.005
+  
+  # Inference
+  enable_inference: true
+  enable_transitive_inference: true
+  inference_confidence_threshold: 0.5
+  max_inference_depth: 5
+  
+  # Spreading Activation
+  enable_spreading_activation: true
+  activation_decay: 0.2
+  firing_threshold: 0.3
+  max_activation_iterations: 10
+  
+  # Learning
+  enable_generalization: true
+  enable_learning_from_examples: true
+
+# ============================================
+# Phase 1B: Meta-Cognition Configuration
+# ============================================
+metacognition:
+  enabled: true
+  
+  # Self-Awareness
+  enable_knowledge_gap_detection: true
+  max_knowledge_gaps: 100
+  gap_importance_decay: 0.1
+  
+  # Confidence Calibration
+  enable_calibration: true
+  calibration_history_size: 100
+  over_confidence_adjustment: 0.5
+  
+  # Uncertainty Quantification
+  enable_uncertainty_tracking: true
+  epistemic_weight: 0.4
+  aleatoric_weight: 0.35
+  model_weight: 0.25
+  
+  # Strategy Selection
+  enable_strategy_selection: true
+  strategy_switch_threshold: 0.3
+  
+  # Learning from Mistakes
+  enable_mistake_learning: true
+  max_mistakes: 500
+  track_recurring_mistakes: true
+  min_recurrence_for_alert: 2
+  
+  # Cognitive Load Monitoring
+  enable_load_monitoring: true
+  high_load_threshold: 0.7
+  fatigue_rate: 0.0001
+  recovery_rate: 0.0002
+  enable_rest_recommendations: true
+
+# ============================================
+# Phase 1B: Parallel Processing (i9-7900X)
+# ============================================
+parallel_processing:
+  enabled: true
+  
+  # Thread Pools (optimized for i9-7900X: 10C/20T)
+  compute_workers: 10  # CPU-bound tasks
+  io_workers: 20       # I/O-bound tasks
+  max_queue_size: 1000
+  
+  # Caching (optimized for 48GB RAM)
+  cache:
+    l1_size: 100       # Hot cache items
+    l2_size: 1000      # Warm cache items
+    l3_size: 10000     # Cold cache items
+    l1_ttl: 60         # 1 minute
+    l2_ttl: 300        # 5 minutes
+    l3_ttl: 3600       # 1 hour
+    max_size_mb: 4800  # ~10% of 48GB
+  
+  # Batch Processing
+  batch:
+    enabled: true
+    default_batch_size: 32
+    max_wait_ms: 100
+  
+  # Memory Efficiency
+  use_compact_dict: true
+  use_ring_buffer: true
+  enable_memory_monitoring: true
+  memory_limit_percent: 80
+
+# ============================================
+# Persistence Configuration
+# ============================================
+persistence:
+  base_path: "~/.voyager_evolved"
+  
+  # Auto-save intervals (seconds)
+  working_memory_save: 300
+  episodic_memory_save: 600
+  semantic_memory_save: 600
+  metacognition_save: 600
+  model_performance_save: 300
+  
+  # Backup
+  enable_backup: true
+  backup_interval_hours: 24
+  max_backups: 7
