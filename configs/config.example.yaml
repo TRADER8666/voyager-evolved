@@ -1,131 +1,142 @@
 # ============================================
-# Voyager Evolved Configuration - Ollama Only
+# Voyager Evolved Configuration (Linux Only)
 # ============================================
-# Copy this file to config.yaml and modify as needed
-# Most values can be overridden via environment variables
+# Powered by Ollama - No API keys required!
+#
+# Performance Profiles:
+#   - fast: Prioritize speed, reduced quality
+#   - balanced: Default settings
+#   - quality: Better decisions, slower
 
 # ============================================
-# Ollama Configuration (Local LLM - No API Key Required!)
+# Ollama Configuration
 # ============================================
-# 
-# Setup:
-#   1. Install: https://ollama.ai/download
-#   2. Pull a model: ollama pull llama2
-#   3. Start server: ollama serve (default: http://localhost:11434)
-
 ollama:
-  # Ollama server URL (default: http://localhost:11434)
   base_url: "http://localhost:11434"
   
-  # Model to use for decision making
-  # Recommended models:
-  #   - llama2: Good general-purpose model (default)
-  #   - mistral: Fast and capable
-  #   - codellama: Great for code generation
-  #   - llama2:13b: Better reasoning (needs more RAM)
+  # Recommended models (ordered by speed):
+  #   - mistral: Fast, good quality
+  #   - llama2: Balanced (default)
+  #   - codellama: Best for code generation
+  #   - llama2:13b: Better quality, slower
   model: "llama2"
   
-  # Embedding model for skill/question similarity
-  # Recommended: nomic-embed-text (free, fast)
-  # Pull with: ollama pull nomic-embed-text
+  # Embedding model (required)
   embedding_model: "nomic-embed-text"
   
-  # Temperature for response generation (0.0 - 2.0)
   temperature: 0.7
-  
-  # Request timeout in seconds
-  request_timeout: 240
+  request_timeout: 120
 
-# Minecraft Server Configuration
+# ============================================
+# Minecraft Configuration
+# ============================================
 minecraft:
-  # Server address
   host: "localhost"
-  
-  # Server port (default: 25565)
   port: 25565
-  
-  # Minecraft version
   version: "1.19.2"
 
-# Voyager Agent Configuration
+# ============================================
+# Agent Configuration
+# ============================================
 agent:
-  # Maximum iterations per learning session
   max_iterations: 100
-  
-  # Resume from last checkpoint
   resume: false
-  
-  # Checkpoint save interval
   checkpoint_interval: 10
-  
-  # Enable skill library persistence
   save_skills: true
-  
-  # Skill library path
   skill_library_path: "./skill_library"
 
-# Voyager Evolved Features
+# ============================================
+# Evolved Features
+# ============================================
 evolved:
-  # Enable all evolved features
   enabled: true
   
   # Player Observation System
   player_observation:
     enabled: true
-    # Observation radius (blocks)
-    radius: 50
-    # How often to scan for players (seconds)
-    scan_interval: 5.0
+    radius: 32
+    update_frequency: 1.0
+    max_tracked_players: 10
+    enable_pattern_recognition: true
   
-  # Evolutionary Goals System  
+  # Evolutionary Goals System
   evolutionary_goals:
     enabled: true
-    # Goal evolution rate
-    mutation_rate: 0.1
-    # Fitness threshold for goal completion
-    fitness_threshold: 0.8
+    survival_weight: 0.3
+    exploration_weight: 0.25
+    social_learning_weight: 0.2
+    goal_mutation_rate: 0.1
+    enable_goal_chaining: true
   
-  # Human-like Behavior System
+  # Human-like Behavior
   human_behavior:
     enabled: true
-    # Enable random pauses and exploration
-    natural_pauses: true
-    # Enable emotional responses
-    emotions: true
+    enable_fatigue: true
+    enable_attention_system: true
+    enable_emotions: true
+    thinking_pause_chance: 0.1
+    mistake_chance: 0.05
   
-  # Personality Configuration
+  # Personality
   personality:
-    # Base personality traits (0.0 - 1.0)
-    curiosity: 0.8      # Exploration tendency
-    caution: 0.5        # Risk aversion
-    social: 0.6         # Interaction with other players
-    creativity: 0.7     # Novel solution generation
-    persistence: 0.75   # Task completion drive
+    curiosity: 0.7
+    caution: 0.5
+    sociability: 0.6
+    creativity: 0.5
+    persistence: 0.7
 
+# ============================================
+# Performance Configuration (Linux Optimized)
+# ============================================
+performance:
+  # LLM Response Caching
+  enable_llm_cache: true
+  cache_max_entries: 500
+  cache_max_size_mb: 50.0
+  
+  # Batch Processing
+  batch_processing: true
+  batch_size: 10
+  batch_interval: 1.0
+  
+  # Async Processing
+  enable_async: true
+  max_async_workers: 4
+  
+  # Memory Management
+  memory_limit_percent: 80.0
+  cleanup_interval: 60.0
+  
+  # Linux-specific
+  use_linux_optimizations: true
+
+# ============================================
+# Skill System Configuration
+# ============================================
+skill:
+  retrieval_top_k: 5
+  enable_difficulty_tracking: true
+  enable_prerequisites: true
+  enable_versioning: true
+  enable_composition: true
+
+# ============================================
 # Logging Configuration
+# ============================================
 logging:
-  # Log level: DEBUG, INFO, WARNING, ERROR
-  level: "INFO"
-  
-  # Log file path
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
   file: "./logs/voyager.log"
-  
-  # Enable console output
   console: true
-  
-  # Log rotation
   max_size_mb: 10
   backup_count: 5
 
-# Advanced Settings
-advanced:
-  # Enable debug mode
-  debug: false
-  
-  # Retry settings for API calls
-  max_retries: 3
-  retry_delay: 1.0
-  
-  # Memory management
-  max_memory_items: 1000
-  context_window: 10
+# ============================================
+# Debug Configuration
+# ============================================
+debug:
+  debug_mode: false
+  verbose_logging: false
+  log_llm_calls: false
+  log_observations: true
+  log_goal_evolution: true
+  enable_profiling: false
