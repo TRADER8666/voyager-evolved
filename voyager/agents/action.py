@@ -14,14 +14,14 @@ from voyager.llm import get_llm
 class ActionAgent:
     def __init__(
         self,
-        model_name=None,  # None = use default from LLM provider
+        model_name=None,  # None = use default (llama2)
         temperature=0,
         request_timout=120,
         ckpt_dir="ckpt",
         resume=False,
         chat_log=True,
         execution_error=True,
-        llm_provider=None,  # None = use default (Ollama)
+        llm_provider=None,  # Ignored, kept for backward compatibility
     ):
         self.ckpt_dir = ckpt_dir
         self.chat_log = chat_log
@@ -33,9 +33,8 @@ class ActionAgent:
             self.chest_memory = U.load_json(f"{ckpt_dir}/action/chest_memory.json")
         else:
             self.chest_memory = {}
-        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        # Use Ollama LLM
         self.llm = get_llm(
-            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,

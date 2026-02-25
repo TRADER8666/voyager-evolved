@@ -1,31 +1,18 @@
 # ============================================
-# Voyager Evolved Configuration
+# Voyager Evolved Configuration - Ollama Only
 # ============================================
 # Copy this file to config.yaml and modify as needed
 # Most values can be overridden via environment variables
 
 # ============================================
-# LLM Provider Configuration
+# Ollama Configuration (Local LLM - No API Key Required!)
 # ============================================
-# Supported providers: "ollama" (default, local) or "openai" (cloud)
 # 
-# OLLAMA (Default - No API Key Required):
-#   - Install: https://ollama.ai/download
-#   - Pull a model: ollama pull llama2
-#   - Start server: ollama serve (default: http://localhost:11434)
-#
-# OPENAI (Optional - Requires API Key):
-#   - Set OPENAI_API_KEY environment variable
-#   - Or set openai.api_key below
+# Setup:
+#   1. Install: https://ollama.ai/download
+#   2. Pull a model: ollama pull llama2
+#   3. Start server: ollama serve (default: http://localhost:11434)
 
-llm:
-  # Provider: "ollama" (default, free, local) or "openai" (cloud, paid)
-  provider: "ollama"
-  
-  # Request timeout in seconds
-  request_timeout: 240
-
-# Ollama Configuration (default - no API key required!)
 ollama:
   # Ollama server URL (default: http://localhost:11434)
   base_url: "http://localhost:11434"
@@ -45,21 +32,9 @@ ollama:
   
   # Temperature for response generation (0.0 - 2.0)
   temperature: 0.7
-
-# OpenAI Configuration (optional - only if using OpenAI provider)
-openai:
-  # API key - preferably set via OPENAI_API_KEY environment variable
-  api_key: "${OPENAI_API_KEY}"
   
-  # Model to use for decision making
-  # Options: gpt-4, gpt-4-turbo, gpt-3.5-turbo
-  model: "gpt-4"
-  
-  # Temperature for response generation (0.0 - 2.0)
-  temperature: 0.7
-  
-  # Maximum tokens per request
-  max_tokens: 4096
+  # Request timeout in seconds
+  request_timeout: 240
 
 # Minecraft Server Configuration
 minecraft:

@@ -14,9 +14,9 @@ from voyager.llm import get_llm, get_embeddings
 class CurriculumAgent:
     def __init__(
         self,
-        model_name=None,  # None = use default from LLM provider
+        model_name=None,  # None = use default (llama2)
         temperature=0,
-        qa_model_name=None,  # None = use default from LLM provider
+        qa_model_name=None,  # None = use default (llama2)
         qa_temperature=0,
         request_timout=120,
         ckpt_dir="ckpt",
@@ -24,17 +24,15 @@ class CurriculumAgent:
         mode="auto",
         warm_up=None,
         core_inventory_items: str | None = None,
-        llm_provider=None,  # None = use default (Ollama)
+        llm_provider=None,  # Ignored, kept for backward compatibility
     ):
-        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        # Use Ollama LLM
         self.llm = get_llm(
-            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,
         )
         self.qa_llm = get_llm(
-            provider=llm_provider,
             model_name=qa_model_name,
             temperature=qa_temperature,
             request_timeout=request_timout,
@@ -57,10 +55,10 @@ class CurriculumAgent:
             self.completed_tasks = []
             self.failed_tasks = []
             self.qa_cache = {}
-        # vectordb for qa cache using embeddings abstraction layer
+        # vectordb for qa cache using Ollama embeddings
         self.qa_cache_questions_vectordb = Chroma(
             collection_name="qa_cache_questions_vectordb",
-            embedding_function=get_embeddings(provider=llm_provider),
+            embedding_function=get_embeddings(),
             persist_directory=f"{ckpt_dir}/curriculum/vectordb",
         )
         assert self.qa_cache_questions_vectordb._collection.count() == len(

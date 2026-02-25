@@ -35,9 +35,7 @@ class VoyagerEvolved:
     4. Observational Learning: Incorporates observed strategies into skills
     5. Personality System: Traits that influence decision-making and evolution
     
-    LLM Support:
-    - Default: Ollama (local LLM, no API key required)
-    - Optional: OpenAI (requires API key)
+    Uses Ollama for local LLM - no API key required!
     """
     
     def __init__(
@@ -45,14 +43,11 @@ class VoyagerEvolved:
         mc_port: int = None,
         azure_login: Dict[str, str] = None,
         server_port: int = 3000,
-        # LLM Configuration - Ollama is the default (no API key required)
-        llm_provider: str = None,  # "ollama" (default) or "openai"
-        openai_api_key: str = None,  # Only required if using OpenAI
         env_wait_ticks: int = 20,
         env_request_timeout: int = 600,
         max_iterations: int = 160,
         reset_placed_if_failed: bool = False,
-        # Model names - None uses defaults from the LLM provider
+        # Model names - None uses default (llama2)
         action_agent_model_name: str = None,
         action_agent_temperature: float = 0,
         action_agent_task_max_retries: int = 4,
@@ -82,17 +77,11 @@ class VoyagerEvolved:
     ):
         """Initialize VoyagerEvolved with enhanced features.
         
-        Now supports both Ollama (local LLM, default) and OpenAI as LLM providers.
-        Ollama requires no API key and runs locally!
+        Uses Ollama for local LLM - no API key required!
         
-        :param llm_provider: "ollama" (default, no API key) or "openai" (requires API key)
-        :param openai_api_key: OpenAI API key (only required if llm_provider="openai")
         :param evolved_config: EvolvedConfig instance for evolved features
         :param evolved_config_path: Path to load EvolvedConfig from JSON
         """
-        # Store LLM provider setting
-        self.llm_provider = llm_provider
-        
         # Load or create evolved config
         if evolved_config_path and os.path.exists(evolved_config_path):
             self.evolved_config = EvolvedConfig.load(evolved_config_path)
@@ -113,11 +102,7 @@ class VoyagerEvolved:
         self.reset_placed_if_failed = reset_placed_if_failed
         self.max_iterations = max_iterations
         
-        # Set OpenAI API key if provided (only needed for OpenAI provider)
-        if openai_api_key:
-            os.environ["OPENAI_API_KEY"] = openai_api_key
-        
-        # Initialize original agents with LLM provider support
+        # Initialize agents with Ollama LLM
         self.action_agent = ActionAgent(
             model_name=action_agent_model_name,
             temperature=action_agent_temperature,
@@ -126,7 +111,6 @@ class VoyagerEvolved:
             resume=resume,
             chat_log=action_agent_show_chat_log,
             execution_error=action_agent_show_execution_error,
-            llm_provider=llm_provider,
         )
         self.action_agent_task_max_retries = action_agent_task_max_retries
         
@@ -141,7 +125,6 @@ class VoyagerEvolved:
             mode=curriculum_agent_mode,
             warm_up=curriculum_agent_warm_up,
             core_inventory_items=curriculum_agent_core_inventory_items,
-            llm_provider=llm_provider,
         )
         
         self.critic_agent = CriticAgent(
@@ -149,7 +132,6 @@ class VoyagerEvolved:
             temperature=critic_agent_temperature,
             request_timout=llm_request_timeout,
             mode=critic_agent_mode,
-            llm_provider=llm_provider,
         )
         
         self.skill_manager = SkillManager(
@@ -159,7 +141,6 @@ class VoyagerEvolved:
             request_timout=llm_request_timeout,
             ckpt_dir=skill_library_dir if skill_library_dir else ckpt_dir,
             resume=True if resume or skill_library_dir else False,
-            llm_provider=llm_provider,
         )
         
         self.recorder = U.EventRecorder(ckpt_dir=ckpt_dir, resume=resume)

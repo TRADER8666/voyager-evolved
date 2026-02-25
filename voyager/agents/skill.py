@@ -12,17 +12,16 @@ from voyager.llm import get_llm, get_embeddings
 class SkillManager:
     def __init__(
         self,
-        model_name=None,  # None = use default from LLM provider
+        model_name=None,  # None = use default (llama2)
         temperature=0,
         retrieval_top_k=5,
         request_timout=120,
         ckpt_dir="ckpt",
         resume=False,
-        llm_provider=None,  # None = use default (Ollama)
+        llm_provider=None,  # Ignored, kept for backward compatibility
     ):
-        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        # Use Ollama LLM
         self.llm = get_llm(
-            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,
@@ -39,10 +38,10 @@ class SkillManager:
             self.skills = {}
         self.retrieval_top_k = retrieval_top_k
         self.ckpt_dir = ckpt_dir
-        # Use the embeddings abstraction layer (supports Ollama and OpenAI)
+        # Use Ollama embeddings
         self.vectordb = Chroma(
             collection_name="skill_vectordb",
-            embedding_function=get_embeddings(provider=llm_provider),
+            embedding_function=get_embeddings(),
             persist_directory=f"{ckpt_dir}/skill/vectordb",
         )
         assert self.vectordb._collection.count() == len(self.skills), (

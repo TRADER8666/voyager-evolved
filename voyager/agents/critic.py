@@ -7,15 +7,14 @@ from voyager.llm import get_llm
 class CriticAgent:
     def __init__(
         self,
-        model_name=None,  # None = use default from LLM provider
+        model_name=None,  # None = use default (llama2)
         temperature=0,
         request_timout=120,
         mode="auto",
-        llm_provider=None,  # None = use default (Ollama)
+        llm_provider=None,  # Ignored, kept for backward compatibility
     ):
-        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        # Use Ollama LLM
         self.llm = get_llm(
-            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,
