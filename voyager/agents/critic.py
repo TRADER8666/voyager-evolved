@@ -1,18 +1,21 @@
 from voyager.prompts import load_prompt
 from voyager.utils.json_utils import fix_and_parse_json
-from langchain.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
+from voyager.llm import get_llm
 
 
 class CriticAgent:
     def __init__(
         self,
-        model_name="gpt-3.5-turbo",
+        model_name=None,  # None = use default from LLM provider
         temperature=0,
         request_timout=120,
         mode="auto",
+        llm_provider=None,  # None = use default (Ollama)
     ):
-        self.llm = ChatOpenAI(
+        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        self.llm = get_llm(
+            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,

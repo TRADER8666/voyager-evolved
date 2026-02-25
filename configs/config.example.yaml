@@ -4,7 +4,49 @@
 # Copy this file to config.yaml and modify as needed
 # Most values can be overridden via environment variables
 
-# OpenAI API Configuration
+# ============================================
+# LLM Provider Configuration
+# ============================================
+# Supported providers: "ollama" (default, local) or "openai" (cloud)
+# 
+# OLLAMA (Default - No API Key Required):
+#   - Install: https://ollama.ai/download
+#   - Pull a model: ollama pull llama2
+#   - Start server: ollama serve (default: http://localhost:11434)
+#
+# OPENAI (Optional - Requires API Key):
+#   - Set OPENAI_API_KEY environment variable
+#   - Or set openai.api_key below
+
+llm:
+  # Provider: "ollama" (default, free, local) or "openai" (cloud, paid)
+  provider: "ollama"
+  
+  # Request timeout in seconds
+  request_timeout: 240
+
+# Ollama Configuration (default - no API key required!)
+ollama:
+  # Ollama server URL (default: http://localhost:11434)
+  base_url: "http://localhost:11434"
+  
+  # Model to use for decision making
+  # Recommended models:
+  #   - llama2: Good general-purpose model (default)
+  #   - mistral: Fast and capable
+  #   - codellama: Great for code generation
+  #   - llama2:13b: Better reasoning (needs more RAM)
+  model: "llama2"
+  
+  # Embedding model for skill/question similarity
+  # Recommended: nomic-embed-text (free, fast)
+  # Pull with: ollama pull nomic-embed-text
+  embedding_model: "nomic-embed-text"
+  
+  # Temperature for response generation (0.0 - 2.0)
+  temperature: 0.7
+
+# OpenAI Configuration (optional - only if using OpenAI provider)
 openai:
   # API key - preferably set via OPENAI_API_KEY environment variable
   api_key: "${OPENAI_API_KEY}"

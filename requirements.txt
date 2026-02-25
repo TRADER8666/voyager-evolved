@@ -1,8 +1,14 @@
 # Core Dependencies
 tqdm>=4.65.0
 langchain>=0.0.200
+langchain-community>=0.0.10  # Required for Ollama support
+langchain-openai>=0.0.2      # Required for OpenAI support (optional)
 javascript>=1!1.0.0
-openai>=1.0.0
+
+# LLM Providers
+# Ollama is the default (local LLM, no API key required)
+# OpenAI is optional (requires API key)
+openai>=1.0.0  # Optional: only needed if using OpenAI provider
 
 # Text Processing
 chardet>=5.0.0

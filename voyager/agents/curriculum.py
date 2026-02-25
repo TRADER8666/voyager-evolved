@@ -6,18 +6,17 @@ import re
 import voyager.utils as U
 from voyager.prompts import load_prompt
 from voyager.utils.json_utils import fix_and_parse_json
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.vectorstores import Chroma
+from voyager.llm import get_llm, get_embeddings
 
 
 class CurriculumAgent:
     def __init__(
         self,
-        model_name="gpt-3.5-turbo",
+        model_name=None,  # None = use default from LLM provider
         temperature=0,
-        qa_model_name="gpt-3.5-turbo",
+        qa_model_name=None,  # None = use default from LLM provider
         qa_temperature=0,
         request_timout=120,
         ckpt_dir="ckpt",
@@ -25,13 +24,17 @@ class CurriculumAgent:
         mode="auto",
         warm_up=None,
         core_inventory_items: str | None = None,
+        llm_provider=None,  # None = use default (Ollama)
     ):
-        self.llm = ChatOpenAI(
+        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        self.llm = get_llm(
+            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,
         )
-        self.qa_llm = ChatOpenAI(
+        self.qa_llm = get_llm(
+            provider=llm_provider,
             model_name=qa_model_name,
             temperature=qa_temperature,
             request_timeout=request_timout,
@@ -54,10 +57,10 @@ class CurriculumAgent:
             self.completed_tasks = []
             self.failed_tasks = []
             self.qa_cache = {}
-        # vectordb for qa cache
+        # vectordb for qa cache using embeddings abstraction layer
         self.qa_cache_questions_vectordb = Chroma(
             collection_name="qa_cache_questions_vectordb",
-            embedding_function=OpenAIEmbeddings(),
+            embedding_function=get_embeddings(provider=llm_provider),
             persist_directory=f"{ckpt_dir}/curriculum/vectordb",
         )
         assert self.qa_cache_questions_vectordb._collection.count() == len(

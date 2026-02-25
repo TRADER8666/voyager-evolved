@@ -2,7 +2,7 @@ import copy
 import json
 import os
 import time
-from typing import Dict
+from typing import Dict, Optional
 
 import voyager.utils as U
 from .env import VoyagerEnv
@@ -20,51 +20,59 @@ class Voyager:
         mc_port: int = None,
         azure_login: Dict[str, str] = None,
         server_port: int = 3000,
-        openai_api_key: str = None,
+        # LLM Configuration - Ollama is the default (no API key required)
+        llm_provider: str = None,  # "ollama" (default) or "openai"
+        openai_api_key: str = None,  # Only required if using OpenAI
         env_wait_ticks: int = 20,
         env_request_timeout: int = 600,
         max_iterations: int = 160,
         reset_placed_if_failed: bool = False,
-        action_agent_model_name: str = "gpt-4",
+        # Model names - None uses defaults from the LLM provider
+        # Ollama default: llama2, OpenAI default: gpt-4
+        action_agent_model_name: str = None,
         action_agent_temperature: float = 0,
         action_agent_task_max_retries: int = 4,
         action_agent_show_chat_log: bool = True,
         action_agent_show_execution_error: bool = True,
-        curriculum_agent_model_name: str = "gpt-4",
+        curriculum_agent_model_name: str = None,
         curriculum_agent_temperature: float = 0,
-        curriculum_agent_qa_model_name: str = "gpt-3.5-turbo",
+        curriculum_agent_qa_model_name: str = None,
         curriculum_agent_qa_temperature: float = 0,
         curriculum_agent_warm_up: Dict[str, int] = None,
         curriculum_agent_core_inventory_items: str = r".*_log|.*_planks|stick|crafting_table|furnace"
         r"|cobblestone|dirt|coal|.*_pickaxe|.*_sword|.*_axe",
         curriculum_agent_mode: str = "auto",
-        critic_agent_model_name: str = "gpt-4",
+        critic_agent_model_name: str = None,
         critic_agent_temperature: float = 0,
         critic_agent_mode: str = "auto",
-        skill_manager_model_name: str = "gpt-3.5-turbo",
+        skill_manager_model_name: str = None,
         skill_manager_temperature: float = 0,
         skill_manager_retrieval_top_k: int = 5,
-        openai_api_request_timeout: int = 240,
+        llm_request_timeout: int = 240,  # Renamed from openai_api_request_timeout
         ckpt_dir: str = "ckpt",
         skill_library_dir: str = None,
         resume: bool = False,
     ):
         """
         The main class for Voyager.
+        
+        Now supports both Ollama (local LLM, default) and OpenAI as LLM providers.
+        Ollama requires no API key and runs locally - perfect for development!
+        
         Action agent is the iterative prompting mechanism in paper.
         Curriculum agent is the automatic curriculum in paper.
         Critic agent is the self-verification in paper.
         Skill manager is the skill library in paper.
+        
         :param mc_port: minecraft in-game port
         :param azure_login: minecraft login config
         :param server_port: mineflayer port
-        :param openai_api_key: openai api key
-        :param env_wait_ticks: how many ticks at the end each step will wait, if you found some chat log missing,
-        you should increase this value
-        :param env_request_timeout: how many seconds to wait for each step, if the code execution exceeds this time,
-        python side will terminate the connection and need to be resumed
-        :param reset_placed_if_failed: whether to reset placed blocks if failed, useful for building task
-        :param action_agent_model_name: action agent model name
+        :param llm_provider: "ollama" (default, no API key) or "openai" (requires API key)
+        :param openai_api_key: OpenAI API key (only required if llm_provider="openai")
+        :param env_wait_ticks: how many ticks at the end each step will wait
+        :param env_request_timeout: how many seconds to wait for each step
+        :param reset_placed_if_failed: whether to reset placed blocks if failed
+        :param action_agent_model_name: model name (None for provider default)
         :param action_agent_temperature: action agent temperature
         :param action_agent_task_max_retries: how many times to retry if failed
         :param curriculum_agent_model_name: curriculum agent model name
@@ -72,34 +80,22 @@ class Voyager:
         :param curriculum_agent_qa_model_name: curriculum agent qa model name
         :param curriculum_agent_qa_temperature: curriculum agent qa temperature
         :param curriculum_agent_warm_up: info will show in curriculum human message
-        if completed task larger than the value in dict, available keys are:
-        {
-            "context": int,
-            "biome": int,
-            "time": int,
-            "other_blocks": int,
-            "nearby_entities": int,
-            "health": int,
-            "hunger": int,
-            "position": int,
-            "equipment": int,
-            "chests": int,
-            "optional_inventory_items": int,
-        }
-        :param curriculum_agent_core_inventory_items: only show these items in inventory before optional_inventory_items
-        reached in warm up
-        :param curriculum_agent_mode: "auto" for automatic curriculum, "manual" for human curriculum
+        :param curriculum_agent_core_inventory_items: inventory items regex
+        :param curriculum_agent_mode: "auto" or "manual"
         :param critic_agent_model_name: critic agent model name
         :param critic_agent_temperature: critic agent temperature
-        :param critic_agent_mode: "auto" for automatic critic ,"manual" for human critic
+        :param critic_agent_mode: "auto" or "manual"
         :param skill_manager_model_name: skill manager model name
         :param skill_manager_temperature: skill manager temperature
-        :param skill_manager_retrieval_top_k: how many skills to retrieve for each task
-        :param openai_api_request_timeout: how many seconds to wait for openai api
+        :param skill_manager_retrieval_top_k: how many skills to retrieve
+        :param llm_request_timeout: how many seconds to wait for LLM API
         :param ckpt_dir: checkpoint dir
         :param skill_library_dir: skill library dir
         :param resume: whether to resume from checkpoint
         """
+        # Store LLM provider setting
+        self.llm_provider = llm_provider
+        
         # init env
         self.env = VoyagerEnv(
             mc_port=mc_port,
@@ -111,18 +107,20 @@ class Voyager:
         self.reset_placed_if_failed = reset_placed_if_failed
         self.max_iterations = max_iterations
 
-        # set openai api key
-        os.environ["OPENAI_API_KEY"] = openai_api_key
+        # Set OpenAI API key if provided (only needed for OpenAI provider)
+        if openai_api_key:
+            os.environ["OPENAI_API_KEY"] = openai_api_key
 
-        # init agents
+        # init agents with LLM provider support
         self.action_agent = ActionAgent(
             model_name=action_agent_model_name,
             temperature=action_agent_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=ckpt_dir,
             resume=resume,
             chat_log=action_agent_show_chat_log,
             execution_error=action_agent_show_execution_error,
+            llm_provider=llm_provider,
         )
         self.action_agent_task_max_retries = action_agent_task_max_retries
         self.curriculum_agent = CurriculumAgent(
@@ -130,26 +128,29 @@ class Voyager:
             temperature=curriculum_agent_temperature,
             qa_model_name=curriculum_agent_qa_model_name,
             qa_temperature=curriculum_agent_qa_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=ckpt_dir,
             resume=resume,
             mode=curriculum_agent_mode,
             warm_up=curriculum_agent_warm_up,
             core_inventory_items=curriculum_agent_core_inventory_items,
+            llm_provider=llm_provider,
         )
         self.critic_agent = CriticAgent(
             model_name=critic_agent_model_name,
             temperature=critic_agent_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             mode=critic_agent_mode,
+            llm_provider=llm_provider,
         )
         self.skill_manager = SkillManager(
             model_name=skill_manager_model_name,
             temperature=skill_manager_temperature,
             retrieval_top_k=skill_manager_retrieval_top_k,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=skill_library_dir if skill_library_dir else ckpt_dir,
             resume=True if resume or skill_library_dir else False,
+            llm_provider=llm_provider,
         )
         self.recorder = U.EventRecorder(ckpt_dir=ckpt_dir, resume=resume)
         self.resume = resume

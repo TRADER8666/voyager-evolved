@@ -3,35 +3,39 @@ import time
 
 import voyager.utils as U
 from javascript import require
-from langchain.chat_models import ChatOpenAI
 from langchain.prompts import SystemMessagePromptTemplate
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 from voyager.prompts import load_prompt
 from voyager.control_primitives_context import load_control_primitives_context
+from voyager.llm import get_llm
 
 
 class ActionAgent:
     def __init__(
         self,
-        model_name="gpt-3.5-turbo",
+        model_name=None,  # None = use default from LLM provider
         temperature=0,
         request_timout=120,
         ckpt_dir="ckpt",
         resume=False,
         chat_log=True,
         execution_error=True,
+        llm_provider=None,  # None = use default (Ollama)
     ):
         self.ckpt_dir = ckpt_dir
         self.chat_log = chat_log
         self.execution_error = execution_error
+        self.model_name = model_name  # Store for later use
         U.f_mkdir(f"{ckpt_dir}/action")
         if resume:
             print(f"\033[32mLoading Action Agent from {ckpt_dir}/action\033[0m")
             self.chest_memory = U.load_json(f"{ckpt_dir}/action/chest_memory.json")
         else:
             self.chest_memory = {}
-        self.llm = ChatOpenAI(
+        # Use the LLM abstraction layer (supports Ollama and OpenAI)
+        self.llm = get_llm(
+            provider=llm_provider,
             model_name=model_name,
             temperature=temperature,
             request_timeout=request_timout,
@@ -83,7 +87,11 @@ class ActionAgent:
             "smeltItem",
             "killMob",
         ]
-        if not self.llm.model_name == "gpt-3.5-turbo":
+        # Include advanced skills for capable models
+        # For Ollama, always include advanced skills since local models vary
+        # For OpenAI, exclude for gpt-3.5-turbo only
+        is_basic_model = self.model_name and "gpt-3.5" in str(self.model_name)
+        if not is_basic_model:
             base_skills += [
                 "useChest",
                 "mineflayer",

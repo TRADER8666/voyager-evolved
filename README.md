@@ -4,11 +4,14 @@
 
 **An Enhanced Minecraft AI Agent with Evolutionary Goals and Human-like Behaviors**
 
+**Now with Ollama Support - Run Locally Without API Keys! 🎉**
+
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Node.js 16+](https://img.shields.io/badge/Node.js-16+-green.svg)](https://nodejs.org/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-orange.svg)](https://ollama.ai/)
 
-[Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Installation](#-installation) • [Quick Start](#-quick-start) • [Ollama Setup](#-ollama-setup-recommended) • [Documentation](#-documentation)
 
 </div>
 
@@ -18,8 +21,13 @@
 
 **Voyager Evolved** is an enhanced version of the original [Voyager](https://github.com/MineDojo/Voyager) project - the first LLM-powered embodied lifelong learning agent in Minecraft. This evolution adds sophisticated human-like behaviors, player observation capabilities, and evolutionary goal systems.
 
+### 🆕 Now with Local LLM Support!
+
+**No API keys required!** Voyager Evolved now supports [Ollama](https://ollama.ai/) as the default LLM provider, allowing you to run the agent completely locally with free, open-source models like LLaMA 2, Mistral, and CodeLlama.
+
 ### What's New in Voyager Evolved?
 
+- 🦙 **Ollama Support (NEW!)** - Run locally with free, open-source LLMs
 - 🔭 **Player Observation System** - Learn from watching other players
 - 🧬 **Evolutionary Goals** - Goals that adapt and evolve based on experience
 - 🎭 **Human-like Behaviors** - Natural pauses, emotional responses, realistic patterns
@@ -54,13 +62,13 @@
 - **Python** 3.9 or higher
 - **Node.js** 16.13.0 or higher
 - **Minecraft Java Edition** (1.19.x recommended)
-- **OpenAI API Key** with GPT-4 access
+- **Ollama** (recommended, free, local) OR **OpenAI API Key** (optional)
 
 ### Quick Install (Recommended)
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/voyager-evolved.git
+git clone https://github.com/TRADER8666/voyager-evolved.git
 cd voyager-evolved
 
 # Run the installer
@@ -72,7 +80,7 @@ chmod +x install.sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/voyager-evolved.git
+git clone https://github.com/TRADER8666/voyager-evolved.git
 cd voyager-evolved
 
 # Create virtual environment (recommended)
@@ -92,64 +100,148 @@ cd ../../..
 ### Windows Installation
 
 ```batch
-git clone https://github.com/YOUR_USERNAME/voyager-evolved.git
+git clone https://github.com/TRADER8666/voyager-evolved.git
 cd voyager-evolved
 install.bat
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🦙 Ollama Setup (Recommended)
 
-### 1. Set Up Your API Key
+Ollama allows you to run Voyager Evolved **completely locally** with no API keys or cloud services!
 
+### Step 1: Install Ollama
+
+**Linux:**
 ```bash
-# Linux/Mac
-export OPENAI_API_KEY='your-openai-api-key-here'
-
-# Windows
-set OPENAI_API_KEY=your-openai-api-key-here
+curl -fsSL https://ollama.ai/install.sh | sh
 ```
 
-### 2. Start Minecraft
+**macOS:**
+```bash
+brew install ollama
+# Or download from https://ollama.ai/download
+```
+
+**Windows:**
+Download from [https://ollama.ai/download](https://ollama.ai/download)
+
+### Step 2: Pull Required Models
+
+```bash
+# Pull the main LLM model (choose one)
+ollama pull llama2        # Good general-purpose (7B, ~4GB)
+ollama pull mistral       # Fast and capable (7B, ~4GB)
+ollama pull codellama     # Great for code generation (7B, ~4GB)
+ollama pull llama2:13b    # Better reasoning (13B, ~8GB RAM needed)
+
+# Pull the embedding model (required for skill library)
+ollama pull nomic-embed-text
+```
+
+### Step 3: Start Ollama
+
+```bash
+# Start the Ollama server (runs on http://localhost:11434)
+ollama serve
+```
+
+**Note:** Keep this running in a separate terminal while using Voyager Evolved.
+
+### Recommended Models for Minecraft Agent
+
+| Model | Size | RAM Needed | Best For |
+|-------|------|------------|----------|
+| `llama2` | 7B | ~4GB | General tasks (default) |
+| `mistral` | 7B | ~4GB | Fast responses |
+| `codellama` | 7B | ~4GB | Code generation |
+| `llama2:13b` | 13B | ~8GB | Complex reasoning |
+| `mixtral` | 47B | ~26GB | Best quality (if you have RAM) |
+
+### Troubleshooting Ollama
+
+**Connection Refused:**
+```bash
+# Make sure Ollama is running
+ollama serve
+
+# Check if it's responding
+curl http://localhost:11434/api/tags
+```
+
+**Model Not Found:**
+```bash
+# List installed models
+ollama list
+
+# Pull the missing model
+ollama pull llama2
+```
+
+**Slow Performance:**
+- Use a smaller model (llama2 vs llama2:13b)
+- Close other applications
+- Consider GPU acceleration (Ollama auto-detects NVIDIA GPUs)
+
+---
+
+## 🚀 Quick Start
+
+### Option A: Using Ollama (Default, No API Key!)
+
+```bash
+# 1. Make sure Ollama is running
+ollama serve
+
+# 2. Start Minecraft and open to LAN
+
+# 3. Run Voyager Evolved (uses Ollama by default!)
+python run_voyager.py --evolved --port 55555
+```
+
+### Option B: Using OpenAI (Optional)
+
+```bash
+# 1. Set your API key
+export OPENAI_API_KEY='your-openai-api-key-here'
+
+# 2. Run with OpenAI provider
+python run_voyager.py --evolved --port 55555 --provider openai
+```
+
+### Start Minecraft
 
 1. Launch Minecraft Java Edition
 2. Create a new world in Creative or Survival mode
 3. Open to LAN (Esc → Open to LAN → Start LAN World)
 4. Note the port number displayed
 
-### 3. Run Voyager Evolved
+### Python API Usage
 
-```bash
-# Basic run
-python run_voyager.py --evolved
+```python
+from voyager.evolved import VoyagerEvolved
 
-# With custom settings
-python run_voyager.py --evolved --port 55555 --iterations 20
-
-# Quick demo (5 iterations)
-./run_quick_demo.sh
+# Using Ollama (default - no API key needed!)
+voyager = VoyagerEvolved(
+    mc_port=55555,  # Your LAN port
+    # llm_provider="ollama",  # This is the default
+    # action_agent_model_name="llama2",  # Optional: specify model
+)
+voyager.learn(max_iterations=10)
 ```
-
-### 4. Python API Usage
 
 ```python
 import os
-from voyager.evolved import VoyagerEvolved, EvolvedConfig
+from voyager.evolved import VoyagerEvolved
 
-config = EvolvedConfig(
-    openai_api_key=os.environ["OPENAI_API_KEY"],
-    mc_port=55555,  # Your LAN port
-    enable_player_observation=True,
-    enable_evolutionary_goals=True,
-    personality_traits={
-        "curiosity": 0.8,
-        "caution": 0.5,
-        "social": 0.7,
-    }
+# Using OpenAI (requires API key)
+voyager = VoyagerEvolved(
+    mc_port=55555,
+    llm_provider="openai",
+    openai_api_key=os.environ.get("OPENAI_API_KEY"),
+    action_agent_model_name="gpt-4",
 )
-
-voyager = VoyagerEvolved(config)
 voyager.learn(max_iterations=10)
 ```
 
@@ -161,13 +253,21 @@ voyager.learn(max_iterations=10)
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `openai_api_key` | str | - | Your OpenAI API key (required) |
+| `llm_provider` | str | "ollama" | LLM provider: "ollama" (local) or "openai" (cloud) |
+| `openai_api_key` | str | None | Your OpenAI API key (only if using OpenAI) |
 | `mc_port` | int | 25565 | Minecraft server port |
-| `model_name` | str | "gpt-4" | OpenAI model to use |
+| `action_agent_model_name` | str | None | Model to use (None = provider default) |
 | `enable_player_observation` | bool | True | Enable player watching |
 | `enable_evolutionary_goals` | bool | True | Enable goal evolution |
 | `enable_human_behavior` | bool | True | Enable human-like actions |
 | `personality_traits` | dict | {} | Custom personality values |
+
+### LLM Provider Defaults
+
+| Provider | Default Model | Embedding Model |
+|----------|---------------|-----------------|
+| Ollama | llama2 | nomic-embed-text |
+| OpenAI | gpt-4 | text-embedding-ada-002 |
 
 ### Personality Traits
 

@@ -34,6 +34,10 @@ class VoyagerEvolved:
     3. Human-like Behavior: Adds natural movement, pauses, and imperfections
     4. Observational Learning: Incorporates observed strategies into skills
     5. Personality System: Traits that influence decision-making and evolution
+    
+    LLM Support:
+    - Default: Ollama (local LLM, no API key required)
+    - Optional: OpenAI (requires API key)
     """
     
     def __init__(
@@ -41,31 +45,34 @@ class VoyagerEvolved:
         mc_port: int = None,
         azure_login: Dict[str, str] = None,
         server_port: int = 3000,
-        openai_api_key: str = None,
+        # LLM Configuration - Ollama is the default (no API key required)
+        llm_provider: str = None,  # "ollama" (default) or "openai"
+        openai_api_key: str = None,  # Only required if using OpenAI
         env_wait_ticks: int = 20,
         env_request_timeout: int = 600,
         max_iterations: int = 160,
         reset_placed_if_failed: bool = False,
-        action_agent_model_name: str = "gpt-4",
+        # Model names - None uses defaults from the LLM provider
+        action_agent_model_name: str = None,
         action_agent_temperature: float = 0,
         action_agent_task_max_retries: int = 4,
         action_agent_show_chat_log: bool = True,
         action_agent_show_execution_error: bool = True,
-        curriculum_agent_model_name: str = "gpt-4",
+        curriculum_agent_model_name: str = None,
         curriculum_agent_temperature: float = 0,
-        curriculum_agent_qa_model_name: str = "gpt-3.5-turbo",
+        curriculum_agent_qa_model_name: str = None,
         curriculum_agent_qa_temperature: float = 0,
         curriculum_agent_warm_up: Dict[str, int] = None,
         curriculum_agent_core_inventory_items: str = r".*_log|.*_planks|stick|crafting_table|furnace"
         r"|cobblestone|dirt|coal|.*_pickaxe|.*_sword|.*_axe",
         curriculum_agent_mode: str = "auto",
-        critic_agent_model_name: str = "gpt-4",
+        critic_agent_model_name: str = None,
         critic_agent_temperature: float = 0,
         critic_agent_mode: str = "auto",
-        skill_manager_model_name: str = "gpt-3.5-turbo",
+        skill_manager_model_name: str = None,
         skill_manager_temperature: float = 0,
         skill_manager_retrieval_top_k: int = 5,
-        openai_api_request_timeout: int = 240,
+        llm_request_timeout: int = 240,
         ckpt_dir: str = "ckpt",
         skill_library_dir: str = None,
         resume: bool = False,
@@ -75,11 +82,17 @@ class VoyagerEvolved:
     ):
         """Initialize VoyagerEvolved with enhanced features.
         
-        All original Voyager parameters are supported, plus:
+        Now supports both Ollama (local LLM, default) and OpenAI as LLM providers.
+        Ollama requires no API key and runs locally!
         
+        :param llm_provider: "ollama" (default, no API key) or "openai" (requires API key)
+        :param openai_api_key: OpenAI API key (only required if llm_provider="openai")
         :param evolved_config: EvolvedConfig instance for evolved features
         :param evolved_config_path: Path to load EvolvedConfig from JSON
         """
+        # Store LLM provider setting
+        self.llm_provider = llm_provider
+        
         # Load or create evolved config
         if evolved_config_path and os.path.exists(evolved_config_path):
             self.evolved_config = EvolvedConfig.load(evolved_config_path)
@@ -100,18 +113,20 @@ class VoyagerEvolved:
         self.reset_placed_if_failed = reset_placed_if_failed
         self.max_iterations = max_iterations
         
-        # Set OpenAI API key
-        os.environ["OPENAI_API_KEY"] = openai_api_key
+        # Set OpenAI API key if provided (only needed for OpenAI provider)
+        if openai_api_key:
+            os.environ["OPENAI_API_KEY"] = openai_api_key
         
-        # Initialize original agents
+        # Initialize original agents with LLM provider support
         self.action_agent = ActionAgent(
             model_name=action_agent_model_name,
             temperature=action_agent_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=ckpt_dir,
             resume=resume,
             chat_log=action_agent_show_chat_log,
             execution_error=action_agent_show_execution_error,
+            llm_provider=llm_provider,
         )
         self.action_agent_task_max_retries = action_agent_task_max_retries
         
@@ -120,28 +135,31 @@ class VoyagerEvolved:
             temperature=curriculum_agent_temperature,
             qa_model_name=curriculum_agent_qa_model_name,
             qa_temperature=curriculum_agent_qa_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=ckpt_dir,
             resume=resume,
             mode=curriculum_agent_mode,
             warm_up=curriculum_agent_warm_up,
             core_inventory_items=curriculum_agent_core_inventory_items,
+            llm_provider=llm_provider,
         )
         
         self.critic_agent = CriticAgent(
             model_name=critic_agent_model_name,
             temperature=critic_agent_temperature,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             mode=critic_agent_mode,
+            llm_provider=llm_provider,
         )
         
         self.skill_manager = SkillManager(
             model_name=skill_manager_model_name,
             temperature=skill_manager_temperature,
             retrieval_top_k=skill_manager_retrieval_top_k,
-            request_timout=openai_api_request_timeout,
+            request_timout=llm_request_timeout,
             ckpt_dir=skill_library_dir if skill_library_dir else ckpt_dir,
             resume=True if resume or skill_library_dir else False,
+            llm_provider=llm_provider,
         )
         
         self.recorder = U.EventRecorder(ckpt_dir=ckpt_dir, resume=resume)
