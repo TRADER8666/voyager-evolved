@@ -1,0 +1,114 @@
+# ============================================
+# Voyager Evolved Configuration
+# ============================================
+# Copy this file to config.yaml and modify as needed
+# Most values can be overridden via environment variables
+
+# OpenAI API Configuration
+openai:
+  # API key - preferably set via OPENAI_API_KEY environment variable
+  api_key: "${OPENAI_API_KEY}"
+  
+  # Model to use for decision making
+  # Options: gpt-4, gpt-4-turbo, gpt-3.5-turbo
+  model: "gpt-4"
+  
+  # Temperature for response generation (0.0 - 2.0)
+  temperature: 0.7
+  
+  # Maximum tokens per request
+  max_tokens: 4096
+
+# Minecraft Server Configuration
+minecraft:
+  # Server address
+  host: "localhost"
+  
+  # Server port (default: 25565)
+  port: 25565
+  
+  # Minecraft version
+  version: "1.19.2"
+
+# Voyager Agent Configuration
+agent:
+  # Maximum iterations per learning session
+  max_iterations: 100
+  
+  # Resume from last checkpoint
+  resume: false
+  
+  # Checkpoint save interval
+  checkpoint_interval: 10
+  
+  # Enable skill library persistence
+  save_skills: true
+  
+  # Skill library path
+  skill_library_path: "./skill_library"
+
+# Voyager Evolved Features
+evolved:
+  # Enable all evolved features
+  enabled: true
+  
+  # Player Observation System
+  player_observation:
+    enabled: true
+    # Observation radius (blocks)
+    radius: 50
+    # How often to scan for players (seconds)
+    scan_interval: 5.0
+  
+  # Evolutionary Goals System  
+  evolutionary_goals:
+    enabled: true
+    # Goal evolution rate
+    mutation_rate: 0.1
+    # Fitness threshold for goal completion
+    fitness_threshold: 0.8
+  
+  # Human-like Behavior System
+  human_behavior:
+    enabled: true
+    # Enable random pauses and exploration
+    natural_pauses: true
+    # Enable emotional responses
+    emotions: true
+  
+  # Personality Configuration
+  personality:
+    # Base personality traits (0.0 - 1.0)
+    curiosity: 0.8      # Exploration tendency
+    caution: 0.5        # Risk aversion
+    social: 0.6         # Interaction with other players
+    creativity: 0.7     # Novel solution generation
+    persistence: 0.75   # Task completion drive
+
+# Logging Configuration
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+  
+  # Log file path
+  file: "./logs/voyager.log"
+  
+  # Enable console output
+  console: true
+  
+  # Log rotation
+  max_size_mb: 10
+  backup_count: 5
+
+# Advanced Settings
+advanced:
+  # Enable debug mode
+  debug: false
+  
+  # Retry settings for API calls
+  max_retries: 3
+  retry_delay: 1.0
+  
+  # Memory management
+  max_memory_items: 1000
+  context_window: 10

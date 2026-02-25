@@ -1,0 +1,14 @@
+include LICENSE
+include README.md
+include requirements.txt
+include pyproject.toml
+
+recursive-include voyager *.js
+recursive-include voyager *.txt
+recursive-include voyager/prompts *
+recursive-include voyager/control_primitives *
+recursive-include voyager/control_primitives_context *
+recursive-include skill_library *
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

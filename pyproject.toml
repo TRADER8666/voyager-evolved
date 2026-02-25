@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=65.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voyager-evolved"
+version = "1.0.0"
+description = "An enhanced Minecraft AI agent with evolutionary goals and human-like behaviors"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Voyager Evolved Contributors"}
+]
+keywords = [
+    "minecraft",
+    "ai-agent", 
+    "llm",
+    "openai",
+    "gpt-4",
+    "embodied-agents"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/YOUR_USERNAME/voyager-evolved"
+Documentation = "https://github.com/YOUR_USERNAME/voyager-evolved#readme"
+Repository = "https://github.com/YOUR_USERNAME/voyager-evolved.git"
+Issues = "https://github.com/YOUR_USERNAME/voyager-evolved/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

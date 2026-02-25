@@ -1,44 +1,36 @@
-# Learned Skill Libraries
+# Skill Library
 
-## Ours
+This directory stores the learned skills acquired by the Voyager agent.
 
-* [skill_library/trial1](trial1)
-* [skill_library/trial2](trial2)
-* [skill_library/trial3](trial3)
+## Structure
 
-## Community Contributions
-
-* [daswer123/Voyager_checkpoint](https://github.com/daswer123/Voyager_checkpoint)
-* [swen128/Voyager_checkpoint](https://github.com/swen128/Voyager_checkpoint)
-* [DeveloperHarris/voyager_checkpoint](https://github.com/DeveloperHarris/voyager_checkpoint)
-
-### How to resume from a community contribution
-First, you need to clone or download their repo. Then, the resume is the same as using ours skill libraries. Just set `skill_library_dir=COMMUNITY_CKPT_DIR` where `COMMUNITY_CKPT_DIR` is the ckpt dir inside the folder you just downloaded.
-
-## How to Contribute
-
-After you run the learning process, you will see a checkpoint directory like:
 ```
-.
-├── action
-│   └── chest_memory.json
-├── curriculum
-│   ├── completed_tasks.json
-│   ├── failed_tasks.json
-│   ├── qa_cache.json
-│   └── vectordb
-├── events
-└── skill
-    ├── code
-    │   ├── catchThreeFishWithCheck.js
-    │   ├── collectBamboo.js
-    │   ├── ...
-    ├── description
-    │   ├── catchThreeFishWithCheck.txt
-    │   ├── collectBamboo.txt
-    │   └── ...
-    ├── skills.json
-    └── vectordb
+skill_library/
+├── README.md          # This file
+├── skills.json        # Index of all skills (generated)
+├── vectordb/          # Vector database for skill retrieval
+└── code/              # Skill code files
+    ├── mine_wood.js
+    ├── craft_pickaxe.js
+    └── ...
 ```
 
-Only `YOUR_CKPT_DIR/skill` is a learned skill library, which you can share with others. Create a pull request and add your skill library link to this page.
+## Usage
+
+Skills are automatically saved when Voyager learns new abilities.
+You can also manually add skills by creating JavaScript files in the `code/` directory.
+
+## Skill Format
+
+Each skill is a JavaScript function that can be called by Mineflayer:
+
+```javascript
+async function skillName(bot) {
+    // Skill implementation
+}
+```
+
+## Pre-built Skills
+
+The repository includes some pre-built skills in subdirectories.
+These provide a foundation for common Minecraft tasks.

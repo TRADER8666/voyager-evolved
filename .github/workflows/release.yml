@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install build tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Build package
+      run: python -m build
+
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Voyager Evolved v${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Voyager Evolved v${{ steps.get_version.outputs.VERSION }}
+
+          ### Installation
+          ```bash
+          git clone https://github.com/${{ github.repository }}.git
+          cd voyager-evolved
+          pip install -e .
+          ```
+
+          See [README.md](README.md) for documentation.
+        files: |
+          dist/*
+        draft: false
+        prerelease: false
